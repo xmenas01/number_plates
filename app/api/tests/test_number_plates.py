@@ -16,7 +16,10 @@ class NumberPlateTest(TestCase):
         self.payload = {
             'number' : 'ANJ519',
             'owner' : 'Peter',
-            'car_model' : 'porsche 911'
+            'car_model' : {
+                'manufacturer': 'porsche',
+                'model': '911'
+            }
         }
 
     def test_create_number_plate(self):
