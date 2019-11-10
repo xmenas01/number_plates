@@ -13,7 +13,7 @@ class NumberPlate(models.Model):
 CTASK_STATUS_CHOICE = [
     ('IN PROGRESS', 'In progress'),
     ('SUCCESS', 'Success'),
-    ('FAIL', 'Fail'),
+    ('FAILED', 'Failed'),
 ]
 
 class CarModel(models.Model):

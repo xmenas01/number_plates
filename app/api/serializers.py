@@ -3,12 +3,13 @@ import re
 from rest_framework import serializers
 
 from api.models import NumberPlate, CarModel
+from api.tasks import task_car_model_get_picture
 
 class CarModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarModel
-        fields = ('manufacturer', 'model', 'image')
-        read_only_fields = ('image',)
+        fields = ('manufacturer', 'model', 'image', 'ctask_status', 'ctask_message')
+        read_only_fields = ('image', 'ctask_status', 'ctask_message')
 
 class NumberPlateSerializer(serializers.ModelSerializer):
     car_model = CarModelSerializer(many=False, required=False)
@@ -28,10 +29,12 @@ class NumberPlateSerializer(serializers.ModelSerializer):
         model = validated_data.pop('car_model', None)
         if model:
             if CarModel.objects.filter(**model).exists():
+                #TODO: except for duplicate entries in cases when duplicate was created over admin portal
                 validated_data['car_model'] = CarModel.objects.get(**model) 
             elif not all(value == "" for value in model.values()):
                 model = {k:v.lower().strip() for (k,v) in model.items()}
                 model_obj = CarModel.objects.create(**model)
+                task_car_model_get_picture.delay(car_model_id=model_obj.id)
                 validated_data['car_model'] = model_obj
         validated_data['number'] = validated_data['number'].upper()
         number_plate = NumberPlate.objects.create(**validated_data)
@@ -47,6 +50,7 @@ class NumberPlateSerializer(serializers.ModelSerializer):
             elif not all(value == "" for value in model.values()):
                 model = {k:v.lower().strip() for (k,v) in model.items()}
                 model_obj = CarModel.objects.create(**model)
+                task_car_model_get_picture.delay(car_model_id=model_obj.id)
                 validated_data['car_model'] = model_obj
                 instance.car_model = validated_data.get('car_model')
             else:
