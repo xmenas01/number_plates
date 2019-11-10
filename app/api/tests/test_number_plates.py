@@ -39,7 +39,9 @@ class NumberPlateTest(TestCase):
         """ Test creation of number plate record with valid payload is successful""" 
         resp = self.client.post(PLATE_URL, self.payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        car_model = CarModel.objects.get(**resp.data.get('car_model'))
+        resp_car_model = resp.data.get('car_model')
+        resp_car_model.pop('image')
+        car_model = CarModel.objects.get(**resp_car_model)
         resp.data['car_model'] = car_model
         self.assertTrue(NumberPlate.objects.filter(**resp.data).exists())
 

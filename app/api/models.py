@@ -20,13 +20,9 @@ class CarModel(models.Model):
     """ Car models with pictures """
     manufacturer = models.CharField('Car Manufacturer', max_length=255, blank=True)
     model = models.CharField('Car Model', max_length=255, blank=True)
-    image = models.ImageField(null=True, upload_to='images/')
+    image = models.ImageField(blank=True, upload_to='images/')
     ctask_status = models.CharField('Celery task state', max_length=255, choices=CTASK_STATUS_CHOICE, default='IN PROGRESS')
     ctask_message = models.CharField('Celery message', max_length=255, blank=True)
-
-    # class Meta:
-    #     unique_together = ('manufacturer', 'model',)
-
 
     def __str__(self):
         return f'{self.manufacturer} {self.model}'.strip()

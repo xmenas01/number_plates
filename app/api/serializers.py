@@ -7,7 +7,8 @@ from api.models import NumberPlate, CarModel
 class CarModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarModel
-        fields = ('manufacturer', 'model',)
+        fields = ('manufacturer', 'model', 'image')
+        read_only_fields = ('image',)
 
 class NumberPlateSerializer(serializers.ModelSerializer):
     car_model = CarModelSerializer(many=False, required=False)
