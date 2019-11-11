@@ -11,10 +11,10 @@ from api.models import CarModel
 logger = get_task_logger(__name__)
 
 
-@task(bind=True, name='task.car_model')
-def task_car_model(self):
-    import ipdb; ipdb.set_trace()
-    car_model_list = CarModel.objects.values_list('id').filter(ctask_status='IN PROGRESS') 
+@task(bind=True, name='task.car_model.cb')
+def task_car_model_cb(self):
+    car_model_list = CarModel.objects.values_list('id', flat=True).filter(ctask_status='IN PROGRESS') 
+    # import ipdb; ipdb.set_trace()
     if car_model_list:
         for car_model_id in car_model_list:
             task_car_model_get_picture.delay(car_model_id)
@@ -34,15 +34,17 @@ def task_car_model_get_picture(self, car_model_id):
         car_model.ctask_status = 'FAILED'
         car_model.ctask_message = err_msg
         car_model.save()
-        raise self.retry(exc=exc)
+        self.retry(exc=exc, countdown=20)
+        return 'FAILED'
     car_model.image = image
     car_model.ctask_status = 'SUCCESS'
+    car_model.ctask_message = ''
     car_model.save()
     return 'SUCCESS'
 
 
 def get_image(car_model):
-    IMAGE_PROVIDER_URL = 'https://www.carimagery.com/api.asmxx'
+    IMAGE_PROVIDER_URL = 'https://www.carimagery.com/api.asmx'
     img_path = settings.MEDIA_ROOT+f'/images/{car_model}.jpg'
     if not os.path.exists(img_path):
         resp = requests.get(f'{IMAGE_PROVIDER_URL}/GetImageUrl?searchTerm={car_model}')

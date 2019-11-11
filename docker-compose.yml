@@ -21,23 +21,23 @@ services:
     image: worker
     env_file:
       - .env
-    command: ["celery", "worker", "--app=carsite", "--concurrency=1", "--hostname=worker@%h", "--loglevel=INFO"]
+    command: ["celery", "worker", "--app=carsite", "--beat", "--concurrency=1", "--hostname=worker@%h", "--loglevel=INFO"]
     # command: ["tail", "-f", "/dev/null"]
     volumes:
       - ./app:/app
     depends_on:
       - broker
     
-  flower:
-    image: mher/flower
-    env_file:
-      - .env
-    # command: ["tail", "-f", "/dev/null"]
-    command: ["flower", "--broker=$CELERY_BROKER", "--port=5555"]
-    ports:
-      - "5555:5555"
-    depends_on:
-      - broker
+  # flower:
+  #   image: mher/flower
+  #   env_file:
+  #     - .env
+  #   # command: ["tail", "-f", "/dev/null"]
+  #   command: ["flower", "--broker=$CELERY_BROKER", "--port=5555"]
+  #   ports:
+  #     - "5555:5555"
+  #   depends_on:
+  #     - broker
 
   broker:
     image: rabbitmq:3-management
