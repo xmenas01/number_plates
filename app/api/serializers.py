@@ -25,17 +25,25 @@ class NumberPlateSerializer(serializers.ModelSerializer):
                 "and contain of first three alphabetical letters follewed by three numbers. exmp.: ABC123")
         return value
 
+    def validate_car_model(self, model):
+        """ Check if we need create car_model or not """
+        if not model.get('manufacturer', None):
+            model['manufacturer'] = ''
+        if not model.get('model', None):
+            model['model'] = ''
+        if CarModel.objects.filter(**model).exists():
+            model = CarModel.objects.get(**model) 
+            return model
+        elif not all(value == "" for value in model.values()):
+            model = {k:v.lower().strip() for (k,v) in model.items()}
+            model_obj = CarModel.objects.create(**model)
+            task_car_model_get_picture.delay(car_model_id=model_obj.id)
+            # validated_data['car_model'] = model_obj
+            model = model_obj
+            return model
+        return None
+
     def create(self, validated_data):
-        model = validated_data.pop('car_model', None)
-        if model:
-            if CarModel.objects.filter(**model).exists():
-                #TODO: except for duplicate entries in cases when duplicate was created over admin portal
-                validated_data['car_model'] = CarModel.objects.get(**model) 
-            elif not all(value == "" for value in model.values()):
-                model = {k:v.lower().strip() for (k,v) in model.items()}
-                model_obj = CarModel.objects.create(**model)
-                task_car_model_get_picture.delay(car_model_id=model_obj.id)
-                validated_data['car_model'] = model_obj
         validated_data['number'] = validated_data['number'].upper()
         number_plate = NumberPlate.objects.create(**validated_data)
         return number_plate
@@ -43,19 +51,10 @@ class NumberPlateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.number = validated_data.get('number', instance.number)
         instance.owner = validated_data.get('owner', instance.owner)
-        model = validated_data.pop('car_model', None)
-        if model: 
-            if CarModel.objects.filter(**model).exists():
-                instance.car_model = CarModel.objects.get(**model) 
-            elif not all(value == "" for value in model.values()):
-                model = {k:v.lower().strip() for (k,v) in model.items()}
-                model_obj = CarModel.objects.create(**model)
-                task_car_model_get_picture.delay(car_model_id=model_obj.id)
-                validated_data['car_model'] = model_obj
-                instance.car_model = validated_data.get('car_model')
-            else:
-                instance.car_model = None
-        else: 
+        model = validated_data.get('car_model', None)
+        if model:
+            instance.car_model = validated_data.get('car_model', instance.car_model)
+        else:
             instance.car_model = None
         instance.save()
         return instance 
