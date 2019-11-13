@@ -10,6 +10,8 @@ In order to skip tedious job of preparing enviroment, we can use docker-compose 
 ```bash
 # Spin-up containers
 $ docker-compose up -d
+# To stop containers
+$ docker-compose down
 # Get bash to app container
 $ docker exec -it number_plates_app_1 /bin/bash
 ```
