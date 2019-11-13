@@ -17,8 +17,8 @@ $ docker exec -it number_plates_app_1 /bin/bash
 When enviroment is ready, we just need to create database tables and admin user. Do not forget admin password, which you provided for django. We will use it to connect into django admin panel.
 ```bash
 # Create database tables and admin superuser 
-$ ./manage.py migrate
-$ createsuperuser --username admin --email admin@admin.com
+$ python ./manage.py migrate
+$ python ./manage.py createsuperuser --username admin --email admin@admin.com
 ```
 We are done, enviroment is ready!!!
 
@@ -37,5 +37,5 @@ http://localhost:8080/api/plates/
 App is covered by tests as well, in order to run them please use django unittest framework:
 ```bash
 $ docker exec -it number_plates_app_1 /bin/bash
-$ ./manage.py test
+$ python ./manage.py test
 ```
