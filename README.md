@@ -1,4 +1,4 @@
-﻿# Number plate assigment
+﻿# Number plate assignment
 
 Project pupose is to register user car number plates with car model into the system and get back car model image. For image retrieving, app uses https://www.carimagery.com/ site's REST API. 
 
