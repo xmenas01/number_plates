@@ -6,12 +6,7 @@ from django import forms
 class NumberPlateAdmin(admin.ModelAdmin):
     list_display = [f.name for f in NumberPlate._meta.fields] 
 
-
 class CarModelForm(forms.ModelForm):
-    # def __init__(self, *args, **kwargs):
-    #     self.request = kwargs.pop('request', None)
-    #     super().__init__(*args, **kwargs)
-
     class Meta:
         model = CarModel 
         fields = "__all__"
