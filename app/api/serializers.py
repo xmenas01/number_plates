@@ -19,7 +19,7 @@ class NumberPlateSerializer(serializers.ModelSerializer):
         fields = ('id','number', 'owner', 'car_model')
     
     def validate_number(self, value):
-        """ Check that the number is contains three letters and three numbers. """
+        """ Check that the number plate contains three letters and three numbers. """
         if not re.match(r'\w{3}\d{3}', value):
             raise serializers.ValidationError("Plate number length should have 6 symbols "\
                 "and contain of first three alphabetical letters follewed by three numbers. exmp.: ABC123")
@@ -34,11 +34,10 @@ class NumberPlateSerializer(serializers.ModelSerializer):
         if CarModel.objects.filter(**model).exists():
             model = CarModel.objects.get(**model) 
             return model
-        elif not all(value == "" for value in model.values()):
+        if not all(value == "" for value in model.values()):
             model = {k:v.lower().strip() for (k,v) in model.items()}
             model_obj = CarModel.objects.create(**model)
             task_car_model_get_picture.delay(car_model_id=model_obj.id)
-            # validated_data['car_model'] = model_obj
             model = model_obj
             return model
         return None
