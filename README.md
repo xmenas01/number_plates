@@ -1,4 +1,4 @@
-﻿# Number plate assigment
+﻿# Number plate assignment
 
 Project pupose is to register user car number plates with car model into the system and get back car model image. For image retrieving, app uses https://www.carimagery.com/ site's REST API. 
 
@@ -41,3 +41,21 @@ App is covered by tests as well, in order to run them please use django unittest
 $ docker exec -it number_plates_app_1 /bin/bash
 $ python ./manage.py test
 ```
+
+### how it works?
+
+User over REST API provides mondatary inputs like car number plate and owner name, these inputs is validated at moment of POST. Optionaly - car model info. All this payload data is saved into database. If car model is given, additional celery task is initiated to pull car model picture and save it. All added car number plates can be viewed over /api/plates/ endpoint.
+
+payload example:
+```json
+{
+    "number": "ANJ519",
+    "owner": "Peter",
+    "car_model": {
+        "manufacturer": "porsche",
+        "model": "911"
+    }
+}
+```
+
+Additional scheduled celery task is running as well for cases when car model is added over Django admin panel or in cases when for any reason instant image pull wasn't initiated.
