@@ -1,8 +1,14 @@
 from django.db import models
+from django.core.validators import RegexValidator
 
 class NumberPlate(models.Model):
     """ Car number plates """
-    number = models.CharField(max_length=6, unique=True)
+    number = models.CharField(max_length=6, 
+                              unique=True, 
+                              validators=[RegexValidator(regex=r'[A-Za-z]{3}\d{3}', 
+                                                         code='invalid_number_plate',
+                                                         message='Plate number should contain first three alphabetical letters'
+                                                         ' follewed by three numbers. exmp.: ABC123')])
     owner = models.CharField(max_length=255)
     car_model = models.ForeignKey('CarModel', related_name='number_plates', blank=True, null=True, on_delete=models.PROTECT)
 

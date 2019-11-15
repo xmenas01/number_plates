@@ -18,13 +18,6 @@ class NumberPlateSerializer(serializers.ModelSerializer):
         model = NumberPlate
         fields = ('id','number', 'owner', 'car_model')
     
-    def validate_number(self, value):
-        """ Check that the number plate contains three letters and three numbers. """
-        if not re.match(r'\w{3}\d{3}', value):
-            raise serializers.ValidationError("Plate number length should have 6 symbols "\
-                "and contain of first three alphabetical letters follewed by three numbers. exmp.: ABC123")
-        return value
-
     def validate_car_model(self, model):
         """ Check if we need create car_model or not """
         if not model.get('manufacturer', None):
