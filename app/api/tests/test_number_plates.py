@@ -165,8 +165,8 @@ class NumberPlateTest(TestCase):
         resp = self.client.post(PLATE_URL, payload)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.dumps(resp.data), 
-                        '{"number": ["Plate number length should have 6 symbols and '\
-                        'contain of first three alphabetical letters follewed by three numbers. exmp.: ABC123"]}')
+                        '{"number": ["Plate number should contain first three alphabetical letters '
+                        'follewed by three numbers. exmp.: ABC123"]}')
         # owner field reuired 
         payload = {
             'number': 'ABC123'

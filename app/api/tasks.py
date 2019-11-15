@@ -14,18 +14,16 @@ logger = get_task_logger(__name__)
 @task(bind=True, name='task.car_model.cb')
 def task_car_model_cb(self):
     car_model_list = CarModel.objects.values_list('id', flat=True).filter(ctask_status='IN PROGRESS') 
-    # import ipdb; ipdb.set_trace()
-    if car_model_list:
-        for car_model_id in car_model_list:
-            task_car_model_get_picture.delay(car_model_id)
+    for car_model_id in car_model_list:
+        task_car_model_get_picture.delay(car_model_id)
     return 'SUCCESS'
     
 @task(bind=True, name='task.car_model_get_picture', time_limit=60)
 def task_car_model_get_picture(self, car_model_id):
-    car_model_values = CarModel.objects.values_list('manufacturer','model').get(pk=car_model_id)
+    car_model = CarModel.objects.get(pk=car_model_id)
+    car_model_values = [car_model.manufacturer, car_model.model]
     car_model_str = ' '.join(car_model_values).strip()
     logger.info(f'Runniong task towards car model: {car_model_str}')
-    car_model = CarModel.objects.get(pk=car_model_id)
     try:
         image = get_image(car_model_str)
     except Exception as exc:
@@ -41,7 +39,6 @@ def task_car_model_get_picture(self, car_model_id):
     car_model.ctask_message = ''
     car_model.save()
     return 'SUCCESS'
-
 
 def get_image(car_model):
     IMAGE_PROVIDER_URL = 'https://www.carimagery.com/api.asmx'
