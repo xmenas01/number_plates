@@ -32,3 +32,6 @@ class CarModel(models.Model):
 
     def __str__(self):
         return f'{self.manufacturer} {self.model}'.strip()
+
+    class Meta:
+        unique_together = ['manufacturer', 'model']

@@ -4,6 +4,10 @@ from api.models import NumberPlate, CarModel
 from api.tasks import task_car_model_get_picture
 
 class CarModelSerializer(serializers.ModelSerializer):
+    def get_unique_together_validators(self):
+        return []
+    manufacturer = serializers.CharField(label='Car Manufacturer', max_length=255, allow_blank=True, required=False)
+    model = serializers.CharField(label='Car Model', max_length=255, allow_blank=True, required=False)
     class Meta:
         model = CarModel
         fields = ('manufacturer', 'model', 'image', 'ctask_status', 'ctask_message')
@@ -18,6 +22,7 @@ class NumberPlateSerializer(serializers.ModelSerializer):
     
     def validate_car_model(self, model):
         """ Check if we need create car_model or not """
+        model = {k:v.lower().strip() for (k,v) in model.items()}
         if not model.get('manufacturer', None):
             model['manufacturer'] = ''
         if not model.get('model', None):
@@ -26,7 +31,6 @@ class NumberPlateSerializer(serializers.ModelSerializer):
             model = CarModel.objects.get(**model) 
             return model
         if not all(value == "" for value in model.values()):
-            model = {k:v.lower().strip() for (k,v) in model.items()}
             model_obj = CarModel.objects.create(**model)
             task_car_model_get_picture.delay(car_model_id=model_obj.id)
             model = model_obj
