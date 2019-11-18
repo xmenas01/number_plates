@@ -1,23 +1,23 @@
-import requests
 import os
-from celery import task
-from celery.utils.log import get_task_logger
+import requests
 import xml.etree.ElementTree as ET
 
+from celery import task
+from celery.utils.log import get_task_logger
 from django.conf import settings
-from api.models import CarModel
 
+from api.models import CarModel
 
 logger = get_task_logger(__name__)
 
 
 @task(bind=True, name='task.car_model.cb')
 def task_car_model_cb(self):
-    car_model_list = CarModel.objects.values_list('id', flat=True).filter(ctask_status='IN PROGRESS') 
+    car_model_list = CarModel.objects.values_list('id', flat=True).filter(ctask_status='IN PROGRESS')
     for car_model_id in car_model_list:
         task_car_model_get_picture.delay(car_model_id)
     return 'SUCCESS'
-    
+
 @task(bind=True, name='task.car_model_get_picture', time_limit=60)
 def task_car_model_get_picture(self, car_model_id):
     car_model = CarModel.objects.get(pk=car_model_id)
@@ -52,5 +52,3 @@ def get_image(car_model):
         with open(img_path, 'wb') as handler:
             handler.write(img_data)
     return f'images/{car_model}.jpg'
-
-

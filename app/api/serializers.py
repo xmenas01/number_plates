@@ -18,17 +18,17 @@ class NumberPlateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = NumberPlate
-        fields = ('id','number', 'owner', 'car_model')
-    
+        fields = ('id', 'number', 'owner', 'car_model')
+
     def validate_car_model(self, model):
         """ Check if we need create car_model or not """
-        model = {k:v.lower().strip() for (k,v) in model.items()}
+        model = {k:v.lower().strip() for (k, v) in model.items()}
         if not model.get('manufacturer', None):
             model['manufacturer'] = ''
         if not model.get('model', None):
             model['model'] = ''
         if CarModel.objects.filter(**model).exists():
-            model = CarModel.objects.get(**model) 
+            model = CarModel.objects.get(**model)
             return model
         if not all(value == "" for value in model.values()):
             model_obj = CarModel.objects.create(**model)
@@ -51,4 +51,4 @@ class NumberPlateSerializer(serializers.ModelSerializer):
         else:
             instance.car_model = None
         instance.save()
-        return instance 
+        return instance
