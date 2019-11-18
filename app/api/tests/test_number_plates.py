@@ -160,7 +160,6 @@ class NumberPlateTest(TestCase):
 
     def test_update_number_plate_car_model(self):
         """ Test update of number plate owner"""
-        # update with existing car model
         payload = {
             'number': 'ANJ519',
             'owner': 'Peter',
@@ -241,7 +240,7 @@ class NumberPlateTest(TestCase):
             self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertEqual(json.dumps(resp.data),
                              '{"number": ["Plate number should contain first three alphabetical letters '
-                             'follewed by three numbers. exmp.: ABC123"]}')
+                             'followed by three numbers. exmp.: ABC123"]}')
 
     def test_number_plate_length(self):
         """ Test creation of number plate length, failed"""
@@ -252,5 +251,5 @@ class NumberPlateTest(TestCase):
         resp = self.client.post(PLATE_URL, payload)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('. '.join(resp.data['number']),
-                         'Plate number should contain first three alphabetical letters follewed by three numbers. exmp.: ABC123. '
+                         'Plate number should contain first three alphabetical letters followed by three numbers. exmp.: ABC123. '
                          'Ensure this field has no more than 6 characters.')

@@ -8,7 +8,7 @@ class NumberPlate(models.Model):
                               validators=[RegexValidator(regex=r'[A-Za-z]{3}\d{3}',
                                                          code='invalid_number_plate',
                                                          message='Plate number should contain first three alphabetical letters'
-                                                         ' follewed by three numbers. exmp.: ABC123')])
+                                                         ' followed by three numbers. exmp.: ABC123')])
     owner = models.CharField(max_length=255,
                              validators=[RegexValidator(regex=r'^[A-Za-z ]+$',
                                                         code='invalid_owner',
