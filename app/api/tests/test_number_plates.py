@@ -48,7 +48,7 @@ class NumberPlateTest(TestCase):
     @patch('api.tasks.get_image')
     @patch('api.tasks.task_car_model_get_picture.retry')
     def test_task_car_model_get_picture_exception(self, mock_retry, mock_get_image):
-        mock_get_image.side_effect = Exception('shit happens') 
+        mock_get_image.side_effect = Exception('shit happens')
         # funcion retunrs FAILED
         self.assertEqual(task_car_model_get_picture(car_model_id=1), 'FAILED')
         mock_get_image.assert_called_with('porsche 911')
@@ -75,7 +75,7 @@ class NumberPlateTest(TestCase):
         mock_func.assert_called_with(2)
 
     def test_create_number_plate_success(self):
-        """ Test creation of number plate record with valid payload is successful""" 
+        """ Test creation of number plate record with valid payload is successful"""
         resp = self.client.post(PLATE_URL, self.payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         resp_car_model = resp.data.get('car_model')
@@ -85,7 +85,7 @@ class NumberPlateTest(TestCase):
         self.assertTrue(NumberPlate.objects.filter(**resp.data).exists())
 
     def test_create_number_plate_without_car_model(self):
-        """ Test creation of number plate record without car_model is successful""" 
+        """ Test creation of number plate record without car_model is successful"""
         payload = {
             'number': 'abc123',
             'owner': 'Peter'
@@ -96,7 +96,7 @@ class NumberPlateTest(TestCase):
         self.assertEqual(number_plate.number, 'ABC123')
 
     def test_create_number_plate_without_car_model_model(self):
-        """ Test creation of number plate record without car_model model is successful""" 
+        """ Test creation of number plate record without car_model model is successful"""
         payload = {
             'number': 'ABC123',
             'owner': 'Peter',
@@ -111,7 +111,7 @@ class NumberPlateTest(TestCase):
         self.assertEqual(number_plate.car_model, car_model)
 
     def test_create_number_plate_without_car_model_manufacturer(self):
-        """ Test creation of number plate record without car_model manufacturer is successful""" 
+        """ Test creation of number plate record without car_model manufacturer is successful"""
         payload = {
             'number': 'ABC124',
             'owner': 'Peter',
@@ -126,7 +126,7 @@ class NumberPlateTest(TestCase):
         self.assertEqual(number_plate.car_model, car_model)
 
     def test_create_number_plate_owner_missing(self):
-        """ Test create of number plate record owner missing""" 
+        """ Test create of number plate record owner missing"""
         payload = {
             'number': 'ANJ520'
         }
@@ -135,7 +135,7 @@ class NumberPlateTest(TestCase):
         self.assertEqual(json.dumps(resp.data), '{"owner": ["This field is required."]}')
 
     def test_create_number_plate_put_method_on_create_endpoint(self):
-        """ Test creation enpoint, try to use put method""" 
+        """ Test creation enpoint, try to use put method"""
         # not allowed method
         resp = self.client.put(PLATE_URL, self.payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -147,10 +147,10 @@ class NumberPlateTest(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_number_plate_owner_with_emty_car_model(self):
-        """ Test update of number plate owner""" 
+        """ Test update of number plate owner"""
         payload = {
             'number': 'ANJ519',
-            'owner': 'Jone'
+            'owner': ' Jone '
         }
         resp = self.client.put(PLATE_URL_DETAIL, payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -159,7 +159,7 @@ class NumberPlateTest(TestCase):
         self.assertEqual(number_plate.car_model, None)
 
     def test_update_number_plate_car_model(self):
-        """ Test update of number plate owner""" 
+        """ Test update of number plate owner"""
         # update with existing car model
         payload = {
             'number': 'ANJ519',
@@ -213,6 +213,17 @@ class NumberPlateTest(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(json.dumps(resp.data), '{"owner": ["This field is required."]}')
 
+    def test_update_number_plate_with_not_valid_owners(self):
+        owner_list = ['Peter P3n', 'Peter5', 'Peter55']
+        for owner in owner_list:
+            payload = {
+                'number': 'ANJ519',
+                'owner': owner
+            }
+            resp = self.client.put(PLATE_URL_DETAIL, payload)
+            self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(json.dumps(resp.data), '{"owner": ["Please use alphanumeric symbols"]}')
+
     def test_detail_endpint_with_post_method(self):
         resp = self.client.post(PLATE_URL_DETAIL, self.payload, format='json')
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -228,9 +239,9 @@ class NumberPlateTest(TestCase):
             }
             resp = self.client.post(PLATE_URL, payload)
             self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertEqual(json.dumps(resp.data), 
-                            '{"number": ["Plate number should contain first three alphabetical letters '
-                            'follewed by three numbers. exmp.: ABC123"]}')
+            self.assertEqual(json.dumps(resp.data),
+                             '{"number": ["Plate number should contain first three alphabetical letters '
+                             'follewed by three numbers. exmp.: ABC123"]}')
 
     def test_number_plate_length(self):
         """ Test creation of number plate length, failed"""
@@ -241,5 +252,5 @@ class NumberPlateTest(TestCase):
         resp = self.client.post(PLATE_URL, payload)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('. '.join(resp.data['number']),
-                        'Plate number should contain first three alphabetical letters follewed by three numbers. exmp.: ABC123. '
-                        'Ensure this field has no more than 6 characters.')
+                         'Plate number should contain first three alphabetical letters follewed by three numbers. exmp.: ABC123. '
+                         'Ensure this field has no more than 6 characters.')
